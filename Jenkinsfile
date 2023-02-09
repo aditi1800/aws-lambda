@@ -26,6 +26,8 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh '''#!/bin/bash
                     echo $AWS_SESSION_TOKEN
+                    echo $AWS_ACCESS_KEY_ID
+                    echo $AWS_DEFAULT_REGION
                     echo "Subnet ID : $subnetIDs"
                     echo " SecurityGroup ID : $securityGroupID"
                     '''
