@@ -25,6 +25,7 @@ pipeline {
             steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh '''#!/bin/bash
+                    chmod +x utilities.sh
                     ./utilities.sh
                     export STACKNAME=${InstanceName}-util
                     StackCreated="false"
