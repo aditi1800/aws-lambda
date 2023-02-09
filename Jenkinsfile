@@ -14,20 +14,46 @@ pipeline {
         // AWS_SESSION_TOKEN = credentials('demo-token')
         AWS_DEFAULT_REGION = "${region}"
         createUtilStack = "${sh(returnStdout: true, script: "aws cloudformation create-stack --stack-name $InstanceName-util --region $region --template-body file://util-template.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=VPCId,ParameterValue=$VpcId ParameterKey=InstanceName,ParameterValue=$InstanceName | tr -d '\n'")}"
-        // utilStackOutput = "${sh(returnStdout: true, script: "aws cloudformation describe-stacks --stack-name $InstanceName-util --region $region  --output json --query 'Stacks[0].Outputs[*]["OutputValue"]' | tr -d '\n'")}"
-        subnetIDs = "${sh(returnStdout: true, script: "aws cloudformation describe-stacks --stack-name $InstanceName-util --region $region  --output json --query 'Stacks[0].Outputs[?OutputKey==`GetSubnetIDs`].OutputValue | [0]' | tr -d '\n'")}"
-        securityGroupIDs = "${sh(returnStdout: true, script: "aws cloudformation describe-stacks --stack-name $InstanceName-util --region $region  --output json --query 'Stacks[0].Outputs[?OutputKey==`GetSecurityGroupIDs`].OutputValue | [0]' | tr -d '\n'")}"
+    // utilStackOutput = "${sh(returnStdout: true, script: "aws cloudformation describe-stacks --stack-name $InstanceName-util --region $region  --output json --query 'Stacks[0].Outputs[*]["OutputValue"]' | tr -d '\n'")}"
+    // subnetIDs = "${sh(returnStdout: true, script: "aws cloudformation describe-stacks --stack-name $InstanceName-util --region $region  --output json --query 'Stacks[0].Outputs[?OutputKey==`GetSubnetIDs`].OutputValue | [0]' | tr -d '\n'")}"
+    // securityGroupIDs = "${sh(returnStdout: true, script: "aws cloudformation describe-stacks --stack-name $InstanceName-util --region $region  --output json --query 'Stacks[0].Outputs[?OutputKey==`GetSecurityGroupIDs`].OutputValue | [0]' | tr -d '\n'")}"
     // KINESIS_APPLICATION_NAME = "${InstanceName}"
     }
 
     stages {
-        stage('Trigger util cft') {
+        stage('Check util cft creation') {
             steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh '''#!/bin/bash
-                    echo $AWS_SESSION_TOKEN
-                    echo $AWS_ACCESS_KEY_ID
-                    echo $AWS_DEFAULT_REGION
+                    ./utilities.sh
+                    export STACKNAME=${InstanceName}-util
+                    StackCreated="false"
+                    while [[ $StackCreated == "false" ]]; do
+                      StackStatus="$(getStackStatus "$STACKNAME")"
+                      echo "StackStatus:$StackStatus"
+                      # Check Stack State - expected is CREATE_COMPLETE
+                      if [[ $StackStatus == "CREATE_COMPLETE" ]]; then
+                          StackCreated="true"
+                          break
+                      else
+                         echo "Sleeping for 1m, and retrying.."
+                         sleep 1m
+                         StackCreated="false"
+                         continue
+                      fi
+                    done
+                    '''
+                }
+            }
+        }
+        stage('Get IDs') {
+            steps {
+                catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
+                    sh '''#!/bin/bash
+                    subnetIDs="$(aws cloudformation describe-stacks --stack-name $InstanceName-util \
+                                --output json --query 'Stacks[0].Outputs[?OutputKey==`GetSubnetIDs`].OutputValue | [0]' )"
+                    securityGroupID="$(aws cloudformation describe-stacks --stack-name $InstanceName-util \
+                                 --output json --query 'Stacks[0].Outputs[?OutputKey==`GetSecurityGroupIDs`].OutputValue | [0]')"
                     echo "Subnet ID : $subnetIDs"
                     echo " SecurityGroup ID : $securityGroupID"
                     '''
