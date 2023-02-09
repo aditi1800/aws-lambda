@@ -11,7 +11,7 @@ pipeline {
     environment {
         AWS_ACCESS_KEY_ID = credentials('demo-id')
         AWS_SECRET_ACCESS_KEY = credentials('demo-key')
-        AWS_SESSION_TOKEN = credentials('demo-token')
+        // AWS_SESSION_TOKEN = credentials('demo-token')
         AWS_DEFAULT_REGION = "${region}"
         createUtilStack = "${sh(returnStdout: true, script: "aws cloudformation create-stack --stack-name $InstanceName-util --region $region --template-body file://util-template.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=VPCId,ParameterValue=$VpcId ParameterKey=InstanceName,ParameterValue=$InstanceName | tr -d '\n'")}"
         // utilStackOutput = "${sh(returnStdout: true, script: "aws cloudformation describe-stacks --stack-name $InstanceName-util --region $region  --output json --query 'Stacks[0].Outputs[*]["OutputValue"]' | tr -d '\n'")}"
