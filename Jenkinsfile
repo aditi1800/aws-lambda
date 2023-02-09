@@ -26,8 +26,8 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh '''#!/bin/bash
                     chmod +x utilities.sh
-                    ./utilities.sh
                     export STACKNAME=${InstanceName}-util
+                    . ./utilities.sh
                     StackCreated="false"
                     while [[ $StackCreated == "false" ]]; do
                       StackStatus="$(getStackStatus "$STACKNAME")"
