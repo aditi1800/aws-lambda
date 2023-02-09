@@ -12,6 +12,7 @@ pipeline {
         AWS_ACCESS_KEY_ID = credentials('AWS_ACCESS_KEY_ID')
         AWS_SECRET_ACCESS_KEY = credentials('AWS_SECRET_ACCESS_KEY')
         AWS_SESSION_TOKEN = credentials('AWS_SESSION_TOKEN')
+        AWS_DEFAULT_REGION = "${region}"
         createUtilStack = "${sh(returnStdout: true, script: "aws cloudformation create-stack --stack-name $InstanceName-util --region $region --template-body file://util-template.yaml --capabilities CAPABILITY_NAMED_IAM --parameters ParameterKey=VPCId,ParameterValue=$VpcId ParameterKey=InstanceName,ParameterValue=$InstanceName | tr -d '\n'")}"
         // utilStackOutput = "${sh(returnStdout: true, script: "aws cloudformation describe-stacks --stack-name $InstanceName-util --region $region  --output json --query 'Stacks[0].Outputs[*]["OutputValue"]' | tr -d '\n'")}"
         subnetIDs = "${sh(returnStdout: true, script: "aws cloudformation describe-stacks --stack-name $InstanceName-util --region $region  --output json --query 'Stacks[0].Outputs[?OutputKey==`GetSubnetIDs`].OutputValue | [0]' | tr -d '\n'")}"
