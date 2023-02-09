@@ -25,7 +25,7 @@ pipeline {
             steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh '''#!/bin/bash
-                    echo "$AWS_SESSION_TOKEN"
+                    echo $AWS_SESSION_TOKEN
                     echo "Subnet ID : $subnetIDs"
                     echo " SecurityGroup ID : $securityGroupID"
                     '''
