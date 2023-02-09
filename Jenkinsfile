@@ -39,8 +39,8 @@ pipeline {
                           echo "$STACKNAME stack created successfully"
                           break
                       else
-                         echo "Sleeping for 1m, and retrying.."
-                         sleep 1m
+                         echo "Sleeping for 20s, and retrying.."
+                         sleep 20
                          StackCreated="false"
                          continue
                       fi
