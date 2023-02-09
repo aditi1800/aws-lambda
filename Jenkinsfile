@@ -9,12 +9,6 @@ pipeline {
     }
 
     environment {
-        install = "${sh(returnStdout: true, script: '''#!/bin/bash
-        chmod 777 -R ./*
-        curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-        unzip awscliv2.zip
-        ./aws/install
-        ''')}"
         AWS_ACCESS_KEY_ID = credentials('demo-id')
         AWS_SECRET_ACCESS_KEY = credentials('demo-key')
         AWS_SESSION_TOKEN = credentials('demo-token')
