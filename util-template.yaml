@@ -1,0 +1,163 @@
+Parameters:
+  VPCId:
+    Type: String
+    Description: VPC Id
+
+  InstanceName:
+    Type: String
+    Description: Instance Name of format wo-<env>-<instance>
+
+Resources:
+  GetSubnetIDsFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.lambda_handler
+      Role: !GetAtt GetSubnetIDsRole.Arn
+      Runtime: python3.9
+      Environment:
+        Variables:
+          VPCIdLambdaVar:
+            Ref: VPCId
+          InstanceNameVar: !Select [2, !Split ["-", !Ref InstanceName]]
+      Code:
+        ZipFile: |
+          import boto3
+          from botocore.exceptions import ClientError
+          import os
+          import re
+          import cfnresponse
+          def lambda_handler(event, context):
+            results = []
+            ec2 = boto3.client('ec2')
+            response = ec2.describe_subnets( Filters=[
+            {
+            'Name': 'vpc-id',
+            'Values':[os.environ['VPCIdLambdaVar']]
+            }])
+            instanceName = os.environ['InstanceNameVar']
+            for group in response['Subnets']:
+              subnetName=''
+              for tag in group['Tags']:  
+                if tag['Key']=='Name':
+                  subnetName=tag['Value']
+                  #print(subnetName)
+              if re.search(f'^.+?-.+?-{instanceName}-.+-private$', subnetName):
+                results.append(group['SubnetId']) 
+            #return results
+            #return response
+            print(results)
+            idList=""
+            for id in results:
+              if id==results[0]:
+                 idList=idList+id
+              else:
+                 idList=idList+","+id
+            responseData = {} 
+            responseData['SubnetLambdaOut'] = idList
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+
+  SubnetOutInvocation:
+    Type: Custom::SubnetOutInvocation
+    Properties:
+      ServiceToken: !GetAtt GetSubnetIDsFunction.Arn
+
+  GetSubnetIDsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: accessSecurityGroupLamda
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeSubnets
+                Resource: "*"
+
+  GetSecurityGroupIDsFunction:
+    Type: AWS::Lambda::Function
+    Properties:
+      Handler: index.lambda_handler
+      Role: !GetAtt GetSecurityGroupIDsRole.Arn
+      Runtime: python3.9
+      Environment:
+        Variables:
+          VPCIdLambdaVar:
+            Ref: VPCId
+          InstanceNameVar: !Select [2, !Split ["-", !Ref InstanceName]]
+      Code:
+        ZipFile: |
+          import boto3
+          from botocore.exceptions import ClientError
+          import os
+          import re
+          import cfnresponse
+          def lambda_handler(event, context):
+            results = []
+            ec2 = boto3.client('ec2')
+            response = ec2.describe_security_groups( Filters=[
+            {
+            'Name': 'vpc-id',
+            'Values':[os.environ['VPCIdLambdaVar']]
+            }])
+            instanceName = os.environ['InstanceNameVar']
+            for group in response['SecurityGroups']:
+              if re.search(f'^.+?-.+?-{instanceName}-.+-worker-sg$', group['GroupName']):
+                results.append(group['GroupId']) 
+            #return results
+            print(results)
+            idList=""
+            for id in results:
+              if id==results[0]:
+                 idList=idList+id
+              else:
+                 idList=idList+","+id
+            responseData = {} 
+            responseData['SecurityGroupLambdaOut'] = idList
+            cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
+
+  SecurityGroupOutInvocation:
+    Type: Custom::SecurityGroupOutInvocation
+    Properties:
+      ServiceToken: !GetAtt GetSecurityGroupIDsFunction.Arn
+
+  GetSecurityGroupIDsRole:
+    Type: AWS::IAM::Role
+    Properties:
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - lambda.amazonaws.com
+            Action:
+              - "sts:AssumeRole"
+      Path: /
+      Policies:
+        - PolicyName: accessSecurityGroupLamda
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: Allow
+                Action:
+                  - ec2:DescribeSecurityGroups
+                Resource: "*"
+Outputs:
+  GetSubnetIDs:
+    Value: !GetAtt SubnetOutInvocation.SubnetLambdaOut
+    Description: "Private Subnet Ids for Environment"
+
+  GetSecurityGroupIDs:
+    Value: !GetAtt SecurityGroupOutInvocation.SecurityGroupLambdaOut
+    Description: "Worker Nodes's Security Group Ids for Environment"
