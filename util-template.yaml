@@ -51,7 +51,7 @@ Resources:
               if id==results[0]:
                  idList=idList+id
               else:
-                 idList=idList+","+id
+                 idList=idList+"\,"+id
             responseData = {} 
             responseData['SubnetLambdaOut'] = idList
             cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
@@ -121,7 +121,7 @@ Resources:
               if id==results[0]:
                  idList=idList+id
               else:
-                 idList=idList+","+id
+                 idList=idList+"\,"+id
             responseData = {} 
             responseData['SecurityGroupLambdaOut'] = idList
             cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)

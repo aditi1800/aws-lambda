@@ -54,9 +54,9 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh '''#!/bin/bash
                     subnetID="$(aws cloudformation describe-stacks --stack-name $InstanceName-util \
-                                --output text --query 'Stacks[0].Outputs[?OutputKey==`GetSubnetIDs`].OutputValue | [0]' | cut -f 1-3 -d ',')"
+                                --output text --query 'Stacks[0].Outputs[?OutputKey==`GetSubnetIDs`].OutputValue | [0]' | cut -f 1-3 -d '\\')"
                     securityGroupID="$(aws cloudformation describe-stacks --stack-name $InstanceName-util \
-                                 --output text --query 'Stacks[0].Outputs[?OutputKey==`GetSecurityGroupIDs`].OutputValue | [0]' | cut -f 1 -d ',')"
+                                 --output text --query 'Stacks[0].Outputs[?OutputKey==`GetSecurityGroupIDs`].OutputValue | [0]' | cut -f 1 -d '\\')"
                     echo "Subnet ID : $subnetID"
                     echo "SecurityGroup ID : $securityGroupID"
                     aws cloudformation create-stack --stack-name $InstanceName-demo-subnetgroup \
