@@ -2,7 +2,8 @@ pipeline {
     agent any
 
     parameters {
-        stringvalidatingString(name: 'InstanceName', defaultValue: '', regex: '^.+?-.+?-.+?', failedValidationMessage: 'Validation failed! : Enter instance name in format: wo-<env>-<instance>', description: 'Instance Name usually follows naming convention wo-<env>-<instance>. Ex.env must be dev or sandbox and instance should be cluster name suffix like wo-dev-lcap.')
+        // ingvalidatingString(name: 'InstanceName', defaultValue: '', regex: '^.+?-.+?-.+?', failedValidationMessage: 'Validation failed! : Enter instance name in format: wo-<env>-<instance>', description: 'Instance Name usually follows naming convention wo-<env>-<instance>. Ex.env must be dev or sandbox and instance should be cluster name suffix like wo-dev-lcap.')
+        string(name: 'InstanceName', defaultValue: '', description: '')
         string(name: 'VpcId', defaultValue: '', description: '')
         choice(name: 'region', choices: ['us-east-1', 'us-west-2', 'ca-central-1', 'us-east-2', 'us-west-1', 'sa-east-1', 'ap-southeast-1', 'ap-southeast-2', 'ap-southeast-3', 'ap-south-1', 'ap-east-1', 'ap-northeast-1', 'ap-northeast-2', 'ap-northeast-3', 'eu-west-1', 'eu-central-1', 'eu-north-1', 'eu-west-2', 'eu-west-3', 'eu-south-1', 'me-south-1', 'af-south-1'], description: 'Select AWS Region in which cluster needs to be deployed.')
     }
