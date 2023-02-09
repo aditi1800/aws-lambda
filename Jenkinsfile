@@ -57,9 +57,9 @@ pipeline {
                                 --output text --query 'Stacks[0].Outputs[?OutputKey==`GetSubnetIDs`].OutputValue | [0]' | cut -f 1 -d ',')"
                     securityGroupID="$(aws cloudformation describe-stacks --stack-name $InstanceName-util \
                                  --output text --query 'Stacks[0].Outputs[?OutputKey==`GetSecurityGroupIDs`].OutputValue | [0]' | cut -f 1 -d ',')"
-                    echo "Subnet ID : $subnetIDs"
+                    echo "Subnet ID : $subnetID"
                     echo "SecurityGroup ID : $securityGroupID"
-                    aws ec2 run-instances --image-id ami-0cca134ec43cf708f --instance-type t2.micro --count 1 \
+                    aws ec2 run-instances --image-id ami-0aa7d40eeae50c9a9 --instance-type t2.micro --count 1 \
                             --subnet-id ${subnetID} --security-group-ids ${securityGroupID} \
                             --associate-public-ip-address --key-name cli-key-pair
                     '''
