@@ -28,6 +28,7 @@ pipeline {
                     chmod +x utilities.sh
                     export STACKNAME=${InstanceName}-util
                     . ./utilities.sh
+                    echo "Checking status of $STACKNAME stack creation"
                     StackCreated="false"
                     while [[ $StackCreated == "false" ]]; do
                       StackStatus="$(getStackStatus "$STACKNAME")"
@@ -35,6 +36,7 @@ pipeline {
                       # Check Stack State - expected is CREATE_COMPLETE
                       if [[ $StackStatus == "CREATE_COMPLETE" ]]; then
                           StackCreated="true"
+                          echo "$STACKNAME stack created successfully"
                           break
                       else
                          echo "Sleeping for 1m, and retrying.."
@@ -51,12 +53,15 @@ pipeline {
             steps {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh '''#!/bin/bash
-                    subnetIDs="$(aws cloudformation describe-stacks --stack-name $InstanceName-util \
-                                --output json --query 'Stacks[0].Outputs[?OutputKey==`GetSubnetIDs`].OutputValue | [0]' )"
+                    subnetID="$(aws cloudformation describe-stacks --stack-name $InstanceName-util \
+                                --output text --query 'Stacks[0].Outputs[?OutputKey==`GetSubnetIDs`].OutputValue | [0]' | cut -f 1 -d ',')"
                     securityGroupID="$(aws cloudformation describe-stacks --stack-name $InstanceName-util \
-                                 --output json --query 'Stacks[0].Outputs[?OutputKey==`GetSecurityGroupIDs`].OutputValue | [0]')"
+                                 --output text --query 'Stacks[0].Outputs[?OutputKey==`GetSecurityGroupIDs`].OutputValue | [0]' | cut -f 1 -d ',')"
                     echo "Subnet ID : $subnetIDs"
-                    echo " SecurityGroup ID : $securityGroupID"
+                    echo "SecurityGroup ID : $securityGroupID"
+                    aws ec2 run-instances --image-id ami-0cca134ec43cf708f --instance-type t2.micro --count 1 \
+                            --subnet-id ${subnetID} --security-group-ids ${securityGroupID} \
+                            --associate-public-ip-address --key-name cli-key-pair
                     '''
                 }
             }
