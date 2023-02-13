@@ -75,7 +75,7 @@ Resources:
               - "sts:AssumeRole"
       Path: /
       Policies:
-        - PolicyName: accessSecurityGroupLamda
+        - PolicyName: accessSubnetLamda
           PolicyDocument:
             Version: "2012-10-17"
             Statement:
