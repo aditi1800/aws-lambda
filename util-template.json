@@ -183,7 +183,7 @@
                 "      else:",
                 "         idList=idList+'\\,'+id",
                 "  responseData = {}",
-                "  responseData['SubnetLambdaOut'] = idList",
+                "  responseData['SecurityGroupLambdaOut'] = idList",
                 "  cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)"
               ]
             ]
