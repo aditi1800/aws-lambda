@@ -123,7 +123,7 @@ Resources:
               else:
                  idList=idList+"\,"+id
             responseData = {} 
-            responseData['SecurityGroupLambdaOut'] = idList
+            responseData[' '] = idList
             cfnresponse.send(event, context, cfnresponse.SUCCESS, responseData)
 
   SecurityGroupOutInvocation:

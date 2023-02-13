@@ -238,13 +238,39 @@
       "Value": {
         "Fn::GetAtt": ["SubnetOutInvocation", "SubnetLambdaOut"]
       },
-      "Description": "Private Subnet Ids for Environment"
+      "Description": "Private Subnet Ids for Environment",
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            "-",
+            [
+              {
+                "Ref": "InstanceName"
+              },
+              "SubnetIDs"
+            ]
+          ]
+        }
+      }
     },
     "GetSecurityGroupIDs": {
       "Value": {
         "Fn::GetAtt": ["SecurityGroupOutInvocation", "SecurityGroupLambdaOut"]
       },
-      "Description": "Worker Nodes's Security Group Ids for Environment"
+      "Description": "Worker Nodes's Security Group Ids for Environment",
+      "Export": {
+        "Name": {
+          "Fn::Join": [
+            "-",
+            [
+              {
+                "Ref": "InstanceName"
+              },
+              "SecurityGroupIDs"
+            ]
+          ]
+        }
+      }
     }
   }
 }
