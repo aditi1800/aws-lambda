@@ -21,7 +21,7 @@ pipeline {
                 catchError(buildResult: 'FAILURE', stageResult: 'FAILURE') {
                     sh '''#!/bin/bash
                     chmod +x utilities.sh
-                    export STACKNAME=${InstanceName}-util
+                    export STACKNAME=${InstanceName}-util1
                     . ./utilities.sh
                     echo "Checking status of $STACKNAME stack creation"
                     StackCreated="false"
