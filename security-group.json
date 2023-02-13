@@ -1,0 +1,67 @@
+{
+  "Parameters": {
+    "InstanceName": {
+      "Description": "Instance Name usually follows naming convention wo-<env>-<instance>",
+      "Type": "String"
+    }
+  },
+  "Resources": {
+    "InstanceSecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupDescription": "Security Group",
+        "VpcId": "vpc-0d7a53624b6d52e6a",
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "-1",
+            "FromPort": -1,
+            "ToPort": -1,
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "SourceSecurityGroupId": {
+              "Fn::Select": [
+                "0",
+                {
+                  "Fn::Split": [
+                    "\\,",
+                    {
+                      "Fn::ImportValue": {
+                        "Fn::Join": [
+                          "-",
+                          [
+                            {
+                              "Ref": "InstanceName"
+                            },
+                            "SecurityGroupIDs"
+                          ]
+                        ]
+                      }
+                    }
+                  ]
+                }
+              ]
+            },
+            "FromPort": -1,
+            "ToPort": -1,
+            "IpProtocol": -1
+          }
+        ],
+        "SecurityGroupEgress": [
+          {
+            "IpProtocol": "-1",
+            "FromPort": -1,
+            "ToPort": -1,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ],
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "lambda-cft-sg"
+          }
+        ]
+      }
+    }
+  }
+}

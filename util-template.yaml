@@ -157,7 +157,11 @@ Outputs:
   GetSubnetIDs:
     Value: !GetAtt SubnetOutInvocation.SubnetLambdaOut
     Description: "Private Subnet Ids for Environment"
+    Export:
+      Name: !Join ["-", [!Ref InstanceName, "SubnetIDs"]]
 
   GetSecurityGroupIDs:
     Value: !GetAtt SecurityGroupOutInvocation.SecurityGroupLambdaOut
     Description: "Worker Nodes's Security Group Ids for Environment"
+    Export:
+      Name: !Join ["-", [!Ref InstanceName, "SecurityGroupIDs"]]
