@@ -55,7 +55,7 @@ pipeline {
                     # echo "Subnet ID : $subnetID"
                     # echo "SecurityGroup ID : $securityGroupID"
                     aws cloudformation create-stack --stack-name $InstanceName-demo-securitygroup \
-                                --template-body file://security-group.json --capabilities CAPABILITY_NAMED_IAM \
+                                --template-body file://dbsubnetgroup.json --capabilities CAPABILITY_NAMED_IAM \
                                 --parameters ParameterKey=InstanceName,ParameterValue=$InstanceName
                     '''
                 }

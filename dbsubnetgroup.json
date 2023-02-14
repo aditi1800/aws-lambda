@@ -10,14 +10,77 @@
       "Type": "AWS::RDS::DBSubnetGroup",
       "Properties": {
         "DBSubnetGroupDescription": "description",
-        "SubnetIds": {
-          "Fn::Split": [
-            ",",
-            {
-              "Ref": "SubnetId"
-            }
-          ]
-        },
+        "SubnetIds": [
+          {
+            "Fn::Select": [
+              "0",
+              {
+                "Fn::Split": [
+                  "\\,",
+                  {
+                    "Fn::ImportValue": {
+                      "Fn::Join": [
+                        "-",
+                        [
+                          {
+                            "Ref": "InstanceName"
+                          },
+                          "SubnetIDs"
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "1",
+              {
+                "Fn::Split": [
+                  "\\,",
+                  {
+                    "Fn::ImportValue": {
+                      "Fn::Join": [
+                        "-",
+                        [
+                          {
+                            "Ref": "InstanceName"
+                          },
+                          "SubnetIDs"
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          },
+          {
+            "Fn::Select": [
+              "2",
+              {
+                "Fn::Split": [
+                  "\\,",
+                  {
+                    "Fn::ImportValue": {
+                      "Fn::Join": [
+                        "-",
+                        [
+                          {
+                            "Ref": "InstanceName"
+                          },
+                          "SubnetIDs"
+                        ]
+                      ]
+                    }
+                  }
+                ]
+              }
+            ]
+          }
+        ],
         "Tags": [
           {
             "Key": "Name",
